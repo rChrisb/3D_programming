@@ -5,6 +5,7 @@ import * as dat from "dat.gui";
 const renderer = new THREE.WebGLRenderer();
 
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
 
 document.body.appendChild(renderer.domElement);
 
@@ -26,9 +27,22 @@ camera.position.set(-10, 30, 30);
 orbit.update();
 
 const ambientLight = new THREE.AmbientLight(0x333333);
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
 scene.add(ambientLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
 scene.add(directionalLight);
+directionalLight.position.set(-50, 70, 0);
+// directionalLight.angle = Math.PI / 2;
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.bottom = -10;
+// directionalLight.shadow.mapSize.width = 2000;
+const dirLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+scene.add(dirLightHelper);
+
+const dLightShadowHelper = new THREE.CameraHelper(
+  directionalLight.shadow.camera
+);
+scene.add(dLightShadowHelper);
+
 const boxGeometry = new THREE.BoxGeometry();
 const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 const box = new THREE.Mesh(boxGeometry, boxMaterial);
@@ -45,6 +59,7 @@ const planeMaterial = new THREE.MeshStandardMaterial({
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 scene.add(plane);
 plane.rotation.x = -0.5 * Math.PI;
+plane.receiveShadow = true;
 
 const sphereGeometry = new THREE.SphereGeometry(4, 50, 50);
 const spereMaterial1 = new THREE.MeshStandardMaterial({
@@ -58,9 +73,11 @@ const spereMaterial2 = new THREE.MeshStandardMaterial({
 const sphere1 = new THREE.Mesh(sphereGeometry, spereMaterial1);
 const sphere2 = new THREE.Mesh(sphereGeometry, spereMaterial2);
 scene.add(sphere1);
-scene.add(sphere2);
 sphere1.position.set(-10, -10, 0);
+sphere1.castShadow = true;
+scene.add(sphere2);
 sphere2.position.set(10, 10, 0);
+sphere2.castShadow = true;
 
 const gui = new dat.GUI();
 const options = {
@@ -89,7 +106,7 @@ function animate() {
   // sphere1.rotation.x += 0.0;
   // sphere1.rotation.y += 0.05;
   step += options.speed;
-  sphere1.position.y = -10 * Math.abs(Math.sin(step));
+  sphere1.position.y = 10 * Math.abs(Math.sin(step));
   sphere2.position.y = 10 * Math.abs(Math.sin(step));
 
   renderer.render(scene, camera);
