@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import * as dat from "dat.gui";
+
 const renderer = new THREE.WebGLRenderer();
 
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -23,8 +25,12 @@ scene.add(axesHelper);
 camera.position.set(-10, 30, 30);
 orbit.update();
 
+const ambientLight = new THREE.AmbientLight(0x333333);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+scene.add(ambientLight);
+scene.add(directionalLight);
 const boxGeometry = new THREE.BoxGeometry();
-const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const boxMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 const box = new THREE.Mesh(boxGeometry, boxMaterial);
 scene.add(box);
 
@@ -32,7 +38,7 @@ const gridHelper = new THREE.GridHelper(30);
 scene.add(gridHelper);
 
 const planeGeometry = new THREE.PlaneGeometry(30, 30);
-const planeMaterial = new THREE.MeshBasicMaterial({
+const planeMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
   side: THREE.DoubleSide,
 });
@@ -41,20 +47,51 @@ scene.add(plane);
 plane.rotation.x = -0.5 * Math.PI;
 
 const sphereGeometry = new THREE.SphereGeometry(4, 50, 50);
-const spereMaterial = new THREE.MeshBasicMaterial({
-  color: 0x000ff,
+const spereMaterial1 = new THREE.MeshStandardMaterial({
+  color: 0x4e37bf,
   wireframe: false,
 });
-const sphere1 = new THREE.Mesh(sphereGeometry, spereMaterial);
-const sphere2 = new THREE.Mesh(sphereGeometry, spereMaterial);
+const spereMaterial2 = new THREE.MeshStandardMaterial({
+  color: 0xb89900,
+  wireframe: false,
+});
+const sphere1 = new THREE.Mesh(sphereGeometry, spereMaterial1);
+const sphere2 = new THREE.Mesh(sphereGeometry, spereMaterial2);
 scene.add(sphere1);
 scene.add(sphere2);
 sphere1.position.set(-10, -10, 0);
 sphere2.position.set(10, 10, 0);
-// box.rotation.set(5, 5, 0);
+
+const gui = new dat.GUI();
+const options = {
+  sphere2Color: "#ffea00",
+  sphere1Color: "#ffea00",
+  wireframe: false,
+  speed: 0.02,
+};
+gui.addColor(options, "sphere1Color").onChange(function (e) {
+  sphere1.material.color.set(e);
+});
+gui.addColor(options, "sphere2Color").onChange(function (e) {
+  sphere2.material.color.set(e);
+});
+gui.add(options, "wireframe").onChange(function (e) {
+  sphere1.material.wireframe = e;
+  sphere2.material.wireframe = e;
+});
+gui.add(options, "speed", 0, 0.05);
+
+let step = 0;
+
 function animate() {
   box.rotation.x += 0.02;
   box.rotation.y += 0.02;
+  // sphere1.rotation.x += 0.0;
+  // sphere1.rotation.y += 0.05;
+  step += options.speed;
+  sphere1.position.y = -10 * Math.abs(Math.sin(step));
+  sphere2.position.y = 10 * Math.abs(Math.sin(step));
+
   renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);
