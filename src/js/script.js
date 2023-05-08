@@ -123,6 +123,8 @@ scene.add(sphere2);
 sphere2.position.set(10, 10, 0);
 sphere2.castShadow = true;
 
+const [sphere1Id, sphere2Id] = [sphere1.id, sphere2.id];
+
 const gui = new dat.GUI();
 const options = {
   sphere2Color: "#ffea00",
@@ -151,6 +153,13 @@ gui.add(options, "intensity", 0, 1);
 
 let step = 0;
 
+const mousePosition = new THREE.Vector2();
+window.addEventListener("mousemove", function (e) {
+  mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mousePosition.y = (e.clientY / window.innerHeight) * 2 + 1;
+});
+const rayCaster = new THREE.Raycaster();
+
 function animate() {
   box.rotation.x += 0.02;
   box.rotation.y += 0.02;
@@ -163,6 +172,19 @@ function animate() {
   spotLight.angle = options.angle;
   spotLight.intensity = options.intensity;
   spotLight.penumbra = options.penumbra;
+
+  rayCaster.setFromCamera(mousePosition, camera);
+  const intersects = rayCaster.intersectObjects(scene.children);
+  console.log(intersects);
+
+  for (let i = 0; i < intersects.length; i++) {
+    if (intersects[i].object.id === sphere1Id) {
+      intersects[i].object.material.color.set(0xff0000);
+    }
+    if (intersects[i].object.id === sphere2Id) {
+      intersects[i].object.material.color.set(0x00f0);
+    }
+  }
 
   renderer.render(scene, camera);
 }
