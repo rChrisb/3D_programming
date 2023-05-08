@@ -89,6 +89,9 @@ scene.add(box2);
 box2.position.set(-3, 13);
 box.castShadow = true;
 box2.castShadow = true;
+box2.name = "theBox";
+
+const box2Name = box2.name;
 
 const gridHelper = new THREE.GridHelper(30);
 scene.add(gridHelper);
@@ -123,6 +126,10 @@ scene.add(sphere2);
 sphere2.position.set(10, 10, 0);
 sphere2.castShadow = true;
 
+// sphere1.addEventListener("click", function (e) {
+//   console.log("bonsoirrr");
+// });
+
 const [sphere1Id, sphere2Id] = [sphere1.id, sphere2.id];
 
 const gui = new dat.GUI();
@@ -154,11 +161,13 @@ gui.add(options, "intensity", 0, 1);
 let step = 0;
 
 const mousePosition = new THREE.Vector2();
-window.addEventListener("mousemove", function (e) {
+document.addEventListener("mousemove", function (e) {
   mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
   mousePosition.y = (e.clientY / window.innerHeight) * 2 + 1;
 });
+
 const rayCaster = new THREE.Raycaster();
+rayCaster.near = 0.01;
 
 function animate() {
   box.rotation.x += 0.02;
@@ -175,7 +184,6 @@ function animate() {
 
   rayCaster.setFromCamera(mousePosition, camera);
   const intersects = rayCaster.intersectObjects(scene.children);
-  console.log(intersects);
 
   for (let i = 0; i < intersects.length; i++) {
     if (intersects[i].object.id === sphere1Id) {
@@ -183,6 +191,10 @@ function animate() {
     }
     if (intersects[i].object.id === sphere2Id) {
       intersects[i].object.material.color.set(0x00f0);
+    }
+    if (intersects[i].object.name === "theBox") {
+      box2.rotation.x += 0.02;
+      box2.rotation.y += 0.02;
     }
   }
 
