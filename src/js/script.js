@@ -22,8 +22,8 @@ renderer.shadowMap.enabled = true;
 
 renderer.domElement.addEventListener("click", function (e) {
   const mouse = new THREE.Vector2();
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(mouse, camera);
@@ -32,19 +32,43 @@ renderer.domElement.addEventListener("click", function (e) {
 
   for (const intersect of intersects) {
     if (intersect.object.name === "moon") {
-      intersect.object.material.color.set(0);
       zoomToMesh(intersect.object);
       break;
     }
     if (intersect.object.name === "earth") {
       intersect.object.material.color.set(0xff0000);
+      zoomToMesh(intersect.object);
+
       break;
     }
   }
 });
-function zoomToMesh(mesh) {
+renderer.domElement.addEventListener("contextmenu", function (e) {
+  const mouse = new THREE.Vector2();
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  for (const intersect of intersects) {
+    if (intersect.object.name === "moon") {
+      zoomToMesh(intersect.object, -40);
+      break;
+    }
+    if (intersect.object.name === "earth") {
+      intersect.object.material.color.set(0xffffff);
+      zoomToMesh(intersect.object, -40);
+
+      break;
+    }
+  }
+});
+function zoomToMesh(mesh, distance = 40) {
   const zoomDuration = 1000; // Duration of the zoom animation in milliseconds
-  const distance = 30; // Specify the distance you want the camera to move
+  /* const distance = 30; */ // Specify the distance you want the camera to move
 
   const direction = new THREE.Vector3();
   mesh.getWorldPosition(direction);
