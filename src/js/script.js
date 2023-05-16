@@ -3,6 +3,7 @@ import { MouseMeshInteractionHandler } from "./script2.js";
 import { MouseMeshInteraction } from "./script2.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
+import * as TWEEN from "tween.js";
 
 // import river from "../images/news1.jpg";
 // import sea from "../images/news2.jpg";
@@ -32,6 +33,7 @@ renderer.domElement.addEventListener("click", function (e) {
   for (const intersect of intersects) {
     if (intersect.object.name === "moon") {
       intersect.object.material.color.set(0);
+      zoomToMesh(intersect.object);
       break;
     }
     if (intersect.object.name === "earth") {
@@ -40,6 +42,26 @@ renderer.domElement.addEventListener("click", function (e) {
     }
   }
 });
+function zoomToMesh(mesh) {
+  const zoomDuration = 1000; // Duration of the zoom animation in milliseconds
+  const distance = 30; // Specify the distance you want the camera to move
+
+  const direction = new THREE.Vector3();
+  mesh.getWorldPosition(direction);
+  direction.sub(camera.position).normalize().multiplyScalar(distance);
+
+  new TWEEN.Tween(camera.position)
+    .to(
+      {
+        x: camera.position.x + direction.x,
+        y: camera.position.y + direction.y,
+        z: camera.position.z + direction.z,
+      },
+      zoomDuration
+    )
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .start();
+}
 
 document.body.appendChild(renderer.domElement);
 
@@ -199,6 +221,7 @@ function animate() {
   spotLight.angle = options.angle;
   spotLight.intensity = options.intensity;
   spotLight.penumbra = options.penumbra;
+  TWEEN.update(); // Add this line to update the TWEEN library
 
   renderer.render(scene, camera);
 }
