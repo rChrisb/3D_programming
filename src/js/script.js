@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { MouseMeshInteractionHandler } from "./script2.js";
+import { MouseMeshInteraction } from "./script2.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 
@@ -125,6 +127,11 @@ sphere1.castShadow = true;
 scene.add(sphere2);
 sphere2.position.set(10, 10, 0);
 sphere2.castShadow = true;
+
+sphere1.name = "moon";
+sphere2.name = "earth";
+
+const mouseMeshInteraction = new MouseMeshInteraction(scene, camera);
 
 // sphere1.addEventListener("click", function (e) {
 //   console.log("bonsoirrr");
