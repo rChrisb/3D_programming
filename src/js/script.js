@@ -19,6 +19,28 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 // renderer.setClearColor(0x1f6c5a);
 
+renderer.domElement.addEventListener("click", function (e) {
+  const mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = raycaster.intersectObjects(scene.children, true);
+
+  for (const intersect of intersects) {
+    if (intersect.object.name === "moon") {
+      intersect.object.material.color.set(0);
+      break;
+    }
+    if (intersect.object.name === "earth") {
+      intersect.object.material.color.set(0xff0000);
+      break;
+    }
+  }
+});
+
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -131,8 +153,6 @@ sphere2.castShadow = true;
 sphere1.name = "moon";
 sphere2.name = "earth";
 
-const mouseMeshInteraction = new MouseMeshInteraction(scene, camera);
-
 // sphere1.addEventListener("click", function (e) {
 //   console.log("bonsoirrr");
 // });
@@ -167,15 +187,6 @@ gui.add(options, "intensity", 0, 1);
 
 let step = 0;
 
-const mousePosition = new THREE.Vector2();
-document.addEventListener("mousemove", function (e) {
-  mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mousePosition.y = (e.clientY / window.innerHeight) * 2 + 1;
-});
-
-const rayCaster = new THREE.Raycaster();
-rayCaster.near = 0.01;
-
 function animate() {
   box.rotation.x += 0.02;
   box.rotation.y += 0.02;
@@ -188,22 +199,6 @@ function animate() {
   spotLight.angle = options.angle;
   spotLight.intensity = options.intensity;
   spotLight.penumbra = options.penumbra;
-
-  rayCaster.setFromCamera(mousePosition, camera);
-  const intersects = rayCaster.intersectObjects(scene.children);
-
-  for (let i = 0; i < intersects.length; i++) {
-    if (intersects[i].object.id === sphere1Id) {
-      intersects[i].object.material.color.set(0xff0000);
-    }
-    if (intersects[i].object.id === sphere2Id) {
-      intersects[i].object.material.color.set(0x00f0);
-    }
-    if (intersects[i].object.name === "theBox") {
-      box2.rotation.x += 0.02;
-      box2.rotation.y += 0.02;
-    }
-  }
 
   renderer.render(scene, camera);
 }
