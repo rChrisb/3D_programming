@@ -55,34 +55,56 @@ renderer.domElement.addEventListener("contextmenu", function (e) {
 
   for (const intersect of intersects) {
     if (intersect.object.name === "moon") {
-      zoomToMesh(intersect.object, -40);
+      zoomOutToMesh(intersect.object, -40);
       break;
     }
     if (intersect.object.name === "earth") {
       intersect.object.material.color.set(0xffffff);
-      zoomToMesh(intersect.object, -40);
+      zoomOutToMesh(intersect.object, -40);
 
       break;
     }
   }
 });
-function zoomToMesh(mesh, distance = 40) {
+function zoomToMesh(mesh) {
+  const distance = 16;
   const zoomDuration = 1000; // Duration of the zoom animation in milliseconds
-  /* const distance = 30; */ // Specify the distance you want the camera to move
+  const threshold = 10; // Distance threshold to check before zooming
 
   const direction = new THREE.Vector3();
   mesh.getWorldPosition(direction);
   direction.sub(camera.position).normalize().multiplyScalar(distance);
 
+  const targetPosition = camera.position.clone().add(direction);
+
+  if (camera.position.distanceTo(mesh.position) - 10 < threshold) {
+    // If already within the threshold, skip the zoom action
+    return;
+  }
+
   new TWEEN.Tween(camera.position)
-    .to(
-      {
-        x: camera.position.x + direction.x,
-        y: camera.position.y + direction.y,
-        z: camera.position.z + direction.z,
-      },
-      zoomDuration
-    )
+    .to(targetPosition, zoomDuration)
+    .easing(TWEEN.Easing.Quadratic.InOut)
+    .start();
+}
+function zoomOutToMesh(mesh) {
+  const distance = -30;
+  const zoomDuration = 1000; // Duration of the zoom animation in milliseconds
+  const threshold = 10; // Distance threshold to check before zooming
+
+  const direction = new THREE.Vector3();
+  mesh.getWorldPosition(direction);
+  direction.sub(camera.position).normalize().multiplyScalar(distance);
+
+  const targetPosition = camera.position.clone().add(direction);
+
+  // if (camera.position.distanceTo(mesh.position) - 10 < threshold) {
+  //   // If already within the threshold, skip the zoom action
+  //   return;
+  // }
+
+  new TWEEN.Tween(camera.position)
+    .to(targetPosition, zoomDuration)
     .easing(TWEEN.Easing.Quadratic.InOut)
     .start();
 }
