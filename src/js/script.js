@@ -88,7 +88,7 @@ function zoomToMesh(mesh) {
     .start();
 }
 function zoomOutToMesh(mesh) {
-  const distance = -30;
+  const distance = -20;
   const zoomDuration = 1000; // Duration of the zoom animation in milliseconds
   const threshold = 10; // Distance threshold to check before zooming
 
